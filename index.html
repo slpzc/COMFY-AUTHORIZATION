@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./reset.css">
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://kit.fontawesome.com/d19d28ad6a.js" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/vue-toast-notification@2/dist/theme-sugar.css" rel="stylesheet">
+    <title>REG</title>
+</head>
+
+<body>
+    <div id="app">
+        <div class="modal">
+            <div class="modal__top">
+                <button @click='stage = 1' :class='{active: stage != 2}'><b>Авторизация</b></button>
+                <button @click='stage = 2' :class='{active: stage == 2}'><b>Регистрация</b></button>
+            </div>
+            <div class="modal__main">
+                <div class="wrapper">
+                    <div class="auth s" v-if='stage == 1'>
+                        <div class="title">
+                            <b>Авторизация на сервере</b>
+                            <p>Зайдите на свой аккаунт, чтобы управлять им</p>
+                        </div>
+                        <div class="form">
+                            <input class='f' type="text" placeholder="Ваш логин" v-model='login'>
+                            <div class="b">
+                                <input id='pas' type="text" placeholder='Ваш пароль' v-model='password'>
+                                <label class='incr' for="#pas" @click='stage = 3'>Забыли?</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="auth re" v-if='stage == 2'>
+                        <div class="title">
+                            <b>Регистрация на сервере</b>
+                            <p>Зарегестрируйтесь, чтобы играть на сервере</p>
+                        </div>
+                        <div class="form reg">
+                            <div class="pas__ p">
+                                <fieldset>
+                                    <legend>Ваш логин</legend>
+                                    <input type="text" placeholder='Ваш логин' v-model='login'>
+                                </fieldset>
+                            </div>
+                            <div class="pas__f p">
+                                <fieldset :class='{green: password.length >= 6}'>
+                                    <legend>Ваш пароль</legend>
+                                    <input type="text" placeholder='Ваш пароль' v-model='password'>
+                                </fieldset>
+                            </div>
+                            <div class="pas__s p">
+                                <fieldset :class='{inputErr: inputError}'>
+                                    <legend v-if='!inputError'>Ваша почта</legend>
+                                    <legend>{{inputError}}</legend>
+                                    <input type="text" placeholder='Вашa почта' v-model='email'>
+                                </fieldset>
+                            </div>
+                            <div class="pas__t p">
+                                <fieldset>
+                                    <legend>Промокод</legend>
+                                    <input type="text" placeholder='Промокд' v-model='promo'>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="checkboxes">
+                            <div class="rules sd" :class='{activeBox: checkBoxes.rules}'
+                                @click='checkBoxes.rules = !checkBoxes.rules'>
+                                <div class="check" :class='{activeBox: checkBoxes.rules}'>
+                                    <div class="inner"></div>
+                                </div>
+                                <label for="rules">Я ознакомился с правилами проекта</label>
+                            </div>
+                            <div class="pushMail sd" :class='{activeBox: checkBoxes.pushMail}'
+                                @click='checkBoxes.pushMail = !checkBoxes.pushMail'>
+                                <div class="check" :class='{activeBox: checkBoxes.pushMail}'>
+                                    <div class="inner"></div>
+                                </div>
+                                <label for="mail">Я готов получать рассылку на свою почту</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="realPassword" v-if='stage == 3'>
+                        <div class="title">
+                            <b>Забыли пароль?</b>
+                            <p>Давайте восстановим пароль</p>
+                        </div>
+                        <div class="content__realPass">
+                            <div class="putMail">
+                                <fieldset class='reverse__fieldset'>
+                                    <div class="inp">
+                                        <input type="text" placeholder='Ваша почта' v-model='email'>
+                                    </div>
+                                    <legend><button @click='giveCode' :disabled='!specCode.buttonINT'>Отправить</button>
+                                    </legend>
+                                </fieldset>
+                            </div>
+                            <div class="pre__code__content" v-if='specCode.showCodeInput'>
+                                <p class='enter__code'>Напишите код подтверждения, который
+                                    придёт на вашу почту</p>
+                                <input type="text" placeholder="Код" v-model='specCode.fromInputCode' maxlength='6'>
+                                <div class="pre__code">
+                                    <p class='time'>0{{dateCopy.minutes}}:<span
+                                            v-if='specCode.date.seconds.toString().length == 1'>0</span>{{dateCopy.seconds}}
+                                    </p>
+                                    <p class='eshe' @click='retSo'>Отправить снова</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="vost__pass auth" v-if='stage == 4'>
+                        <div class="title">
+                            <b>Забыли пароль?</b>
+                            <p>Давайте восстановим пароль</p>
+                        </div>
+                        <div class="content">
+                            <div class="npas rt" :class='{yesg: newPassINFO.newPass.length >= 8}'>
+                                <fieldset class='p'>
+                                    <legend>
+                                        <p>Новый пароль</p>
+                                    </legend>
+                                    <div class="новый_пароль">
+                                        <input type="password" placeholder='Новый пароль' v-model='newPassINFO.newPass'>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="tit rt">
+                                <input type="password" :class='{sgo: newPassINFO.secondPass == newPassINFO.newPass}'
+                                    placeholder='Повторите пароль' v-model='newPassINFO.secondPass'>
+                            </div>
+                            <div class="pod">
+                                <p
+                                    :class='{prob: newPassINFO.newPass.length < 8, vip: newPassINFO.newPass.length >= 8}'>
+                                    <i v-if='newPassINFO.newPass.length < 8' class="fas fa-times"></i> <i
+                                        v-if='newPassINFO.newPass.length >= 8' class="fas fa-check"></i> Более 8
+                                    символов
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="seks auth" v-if='stage == 5'>
+                        <div class="title">
+                            <b>{{suc.title}}</b>
+                            <p>{{suc.subtitle}}</p>
+                        </div>
+                        <div class="content">
+                            <div class="ok">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <b>Успешно!</b>
+                            <p>{{suc.message}}</p>
+                        </div>
+                    </div>
+                    <button class='dinamic__button' @click='send'
+                        v-if='stage != 2 && stage != 3 && stage != 4 && stage != 5 && stage != 6'
+                        :class='{ready: output}'>{{text}}</button>
+                    <button class='dinamic__button' @click='register' v-if='stage == 2'
+                        :class='{ready: output}'>{{text}}</button>
+                    <button class='dinamic__button' @click='checkCode'  v-if='stage == 3'  :disabled='specCode.fromInputCode.toString().length != 6' :class='{ready: specCode.fromInputCode.length == 6}'>{{text}}</button>
+                        
+                    <button class='dinamic__button' @click='newPass' v-if='stage == 4'
+                        :class='{ready: newPassINFO.newPass.length >= 8 && newPassINFO.secondPass == newPassINFO.newPass}'>{{text}}</button>
+                    <button class='dinamic__button ready' @click='stage = 1' v-if='stage == 5'>{{text}}</button>
+                </div>
+            </div>
+        </div>
+        <div id="notification" :class='{in: err}' @click='err = null'>
+            {{err}}
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.4/axios.min.js"
+        integrity="sha512-lTLt+W7MrmDfKam+r3D2LURu0F47a3QaW5nF0c6Hl0JDZ57ruei+ovbg7BrZ+0bjVJ5YgzsAWE+RreERbpPE1g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="./main.js"></script>
+</body>
+
+</html>
